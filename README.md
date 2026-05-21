@@ -1,0 +1,1 @@
+# go-for-trivy-test
