@@ -28,10 +28,29 @@ jobs:
         docker run -d -p 8080:8080 --name gin-ping-app gin-ping-app:latest
         sleep 5
 
+#Testing Get /ping endpoint
     - name: Test /ping endpoint
       run: |
         curl --fail http://localhost:8080/ping
 
+    #Testing POST /greet endpoint
+    - name: Test /greet endpoint
+      run: |
+        curl --fail http://localhost:8080/greet \
+        -H "Content-Type: application/json" \
+        -d '{"name": "GitHub Actions"}'
+
+    #Testing Get /greet endpoint with query parameter
+    - name: Validate response contains greetings
+      run: | 
+        response=(curl --fail http://localhost:8080/greet \
+          -H "Content-Type: application/json" \
+          -d '{"name": "GitHub Actions"}')
+
+        echo "$response" | grep -E "Good (Morning|Afternoon|Evening|Night), GitHub Actions!"
+
     - name: Stop container
+    if: always()
       run: |
         docker stop gin-ping-app
+        docker rm gin-ping-app
