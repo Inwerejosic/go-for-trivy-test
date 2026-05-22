@@ -74,10 +74,10 @@ jobs:
         echo "$response" | grep -E "Good (Morning|Afternoon|Evening|Night), GitHub Actions!"
 
     - name: Stop container
-    if: always()
-      run: |
-        docker stop gin-ping-app
-        docker rm gin-ping-app
+      if: always()
+        run: |
+          docker stop gin-ping-app
+          docker rm gin-ping-app
     - name: Run container
       run: |
         docker run -d -p 8080:8080 --name gin-ping-app gin-ping-app:latest
