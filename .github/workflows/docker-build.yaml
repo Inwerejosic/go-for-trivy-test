@@ -2,11 +2,9 @@ name: Build and Test Docker Image
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
@@ -22,43 +20,34 @@ jobs:
     - name: Install jq
       run: sudo apt-get update && sudo apt-get install -y jq
 
+    # 🔑 IMPORTANT: --load makes image visible to Trivy
     - name: Build Docker image
       run: |
-        docker build -t gin-ping-app:latest .
+        docker buildx build \
+          --load \
+          -t gin-ping-app:latest .
 
     - name: Run container
       run: |
         docker run -d -p 8080:8080 --name gin-ping-app gin-ping-app:latest
         sleep 5
 
-    # =========================
-    # API TESTS
-    # =========================
-
     - name: Test /ping endpoint
       run: |
         curl --fail http://localhost:8080/ping
 
-    - name: Test /greet endpoint
-      run: |
-        curl --fail -X POST http://localhost:8080/greet \
-        -H "Content-Type: application/json" \
-        -d '{"name": "GitHub Actions"}'
-
-    - name: Validate response contains greeting
+    - name: Validate /greet response
       run: |
         response=$(curl -s -X POST http://localhost:8080/greet \
           -H "Content-Type: application/json" \
-          -d '{"name": "GitHub Actions"}')
+          -d '{"name":"GitHub Actions"}')
 
-        echo "RAW RESPONSE: $response"
-
+        echo "Response: $response"
         message=$(echo "$response" | jq -r '.message')
-
         echo "$message" | grep -E "Good (Morning|Afternoon|Evening|Night), GitHub Actions"
 
     # =========================
-    # SECURITY SCAN (TRIVY)
+    # TRIVY (FIXED)
     # =========================
 
     - name: Install Trivy
@@ -66,18 +55,22 @@ jobs:
         curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
         sudo mv trivy /usr/local/bin/
 
-    - name: Run Trivy scan (fail on HIGH/CRITICAL)
+    - name: Verify image exists
+      run: docker images
+
+    - name: Run Trivy scan
       run: |
         trivy image \
           --severity HIGH,CRITICAL \
           --exit-code 1 \
+          --no-progress \
           gin-ping-app:latest
 
     # =========================
     # CLEANUP
     # =========================
 
-    - name: Stop container
+    - name: Cleanup
       if: always()
       run: |
         docker stop gin-ping-app || true

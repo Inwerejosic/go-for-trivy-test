@@ -11,17 +11,30 @@ type Request struct {
 	Name   string    `json:"name"`
 }
 
+// func getGreeting() string {
+// 	hour := time.Now().Hour()
+// 	switch {
+// 	case hour >= 5 && hour < 12:
+// 		return "Good morning!"
+// 	case hour >= 12 && hour < 17:
+// 		return "Good afternoon!"
+// 	case hour >= 17 && hour < 21:
+// 		return "Good evening!"		
+// 	default:
+// 		return "Good Night!"
+// 	}
+// }
 func getGreeting() string {
 	hour := time.Now().Hour()
 	switch {
 	case hour >= 5 && hour < 12:
-		return "Good morning!"
+		return "Good Morning,"
 	case hour >= 12 && hour < 17:
-		return "Good afternoon!"
+		return "Good Afternoon,"
 	case hour >= 17 && hour < 21:
-		return "Good evening!"		
+		return "Good Evening,"
 	default:
-		return "Good Night!"
+		return "Good Night,"
 	}
 }
 
