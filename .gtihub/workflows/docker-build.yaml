@@ -14,18 +14,18 @@ jobs:
 
     steps:
     - name: Checkout source code
-      uses: actions/checkout@v4 
+      uses: actions/checkout@v4
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-    
+
     - name: Build Docker image
       run: |
         docker build -t gin-ping-app:latest .
 
     - name: Run container
       run: |
-        docker run -d -p 8080:8080 --name gin-ping-app:latest
+        docker run -d -p 8080:8080 --name gin-ping-app gin-ping-app:latest
         sleep 5
 
     - name: Test /ping endpoint
