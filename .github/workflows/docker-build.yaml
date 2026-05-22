@@ -75,7 +75,7 @@ jobs:
 
     - name: Stop container
       if: always()
-        run: |
-          docker stop gin-ping-app
-          docker rm gin-ping-app
+      run: |
+        docker stop gin-ping-app
+        docker rm gin-ping-app
     
