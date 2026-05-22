@@ -1,0 +1,37 @@
+name: Build and Test Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker image
+      run: |
+        docker build -t gin-ping-app:latest .
+
+    - name: Run container
+      run: |
+        docker run -d -p 8080:8080 --name gin-ping-app gin-ping-app:latest
+        sleep 5
+
+    - name: Test /ping endpoint
+      run: |
+        curl --fail http://localhost:8080/ping
+
+    - name: Stop container
+      run: |
+        docker stop gin-ping-app
